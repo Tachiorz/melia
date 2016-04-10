@@ -55,6 +55,7 @@ namespace Melia.Channel.Util
 			// Dev
 			Add("test", "", HandleTest);
 			Add("reloadscripts", "", HandleReloadScripts);
+			Add("testhelp", "<id> <val>", HandleTestHelp);
 
 			// Aliases
 			AddAlias("iteminfo", "ii");
@@ -193,6 +194,20 @@ namespace Melia.Channel.Util
 		private CommandResult HandleTest(ChannelConnection conn, Character character, Character target, string command, string[] args)
 		{
 			Log.Debug("test!!");
+
+			return CommandResult.Okay;
+		}
+
+		private CommandResult HandleTestHelp(ChannelConnection conn, Character character, Character target, string command, string[] args)
+		{
+			if (args.Length < 2)
+				return CommandResult.InvalidArgument;
+			int id;
+			byte val = 1;
+			int.TryParse(args[1], out id);
+			if (args.Length > 2) byte.TryParse(args[2], out val);
+
+			Send.ZC_HELP_ADD(conn, id, val);
 
 			return CommandResult.Okay;
 		}

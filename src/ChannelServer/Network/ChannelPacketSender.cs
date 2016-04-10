@@ -1748,6 +1748,21 @@ namespace Melia.Channel.Network
 		}
 
 		/// <summary>
+		/// Show help window.
+		/// </summary>
+		/// <param name="character"></param>
+		/// <param name="helpId"></param>
+		/// <param name="value"></param>
+		public static void ZC_HELP_ADD(Connection conn, int helpId, byte value)
+		{
+			var packet = new Packet(Op.ZC_HELP_ADD);
+			packet.PutInt(helpId);
+			packet.PutByte(value);
+
+			conn.Send(packet);
+		}
+
+		/// <summary>
 		/// Reply packet when skill melee ground is placed
 		/// </summary>
 		/// <param name="character"></param>
