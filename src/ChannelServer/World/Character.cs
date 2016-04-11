@@ -113,6 +113,12 @@ namespace Melia.Channel.World
 		public bool EyesOpen { get; private set; }
 
 		/// <summary>
+		/// Character session objects
+		/// </summary>
+		// todo: _session_objects is a test code
+		private Dictionary<int, long> _session_objects = new Dictionary<int, long>();
+
+		/// <summary>
 		/// Creates new character.
 		/// </summary>
 		public Character()
@@ -126,6 +132,18 @@ namespace Melia.Channel.World
 			this.Handle = ChannelServer.Instance.World.CreateHandle();
 			this.Inventory = new Inventory(this);
 			this.Speed = 30;
+		}
+
+		/// <summary>
+		/// Adds session object.
+		/// </summary>
+		/// <param name="id"></param>
+		public void AddSessionObject(int id)
+		{
+			if (_session_objects.ContainsKey(id)) return;
+			var uid = ChannelServer.Instance.World.CreateUID();
+			_session_objects[id] = uid;
+			Send.ZC_SESSION_OBJ_ADD(this.Connection, id, uid);
 		}
 
 		/// <summary>

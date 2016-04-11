@@ -17,6 +17,12 @@ namespace Melia.Channel.World
 
 		private int _handles = 0;
 
+		/// <summary>
+		/// Server object unique identifiers
+		/// </summary>
+		// todo: world objects _uids can intersect with acount&character id's they all should be unique
+		private long _uids = 0x608200000000;
+
 		private Dictionary<int, Map> _mapsId;
 		private Dictionary<string, Map> _mapsName;
 		private object _mapsLock = new object();
@@ -85,6 +91,11 @@ namespace Melia.Channel.World
 			//   need a fallback, or a way to release handles of logged out
 			//   characters or killed monsters.
 			return Interlocked.Increment(ref _handles);
+		}
+
+		public long CreateUID()
+		{
+			return Interlocked.Increment(ref _uids);
 		}
 
 		/// <summary>

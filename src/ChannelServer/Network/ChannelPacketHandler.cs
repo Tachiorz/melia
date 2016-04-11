@@ -114,6 +114,7 @@ namespace Melia.Channel.Network
 			// ZC_GUESTPAGE_MAP
 			Send.ZC_START_INFO(conn);
 			Send.ZC_ITEM_EQUIP_LIST(character);
+			Send.ZC_SESSION_OBJECTS(character);
 			Send.ZC_SKILL_LIST(character);
 			Send.ZC_ABILITY_LIST(character);
 			Send.ZC_COOLDOWN_LIST(character);

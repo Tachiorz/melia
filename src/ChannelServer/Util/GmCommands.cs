@@ -55,6 +55,7 @@ namespace Melia.Channel.Util
 			// Dev
 			Add("test", "", HandleTest);
 			Add("reloadscripts", "", HandleReloadScripts);
+			Add("sesobjadd", "<id>", HandleSessionObjectAdd);
 
 			// Aliases
 			AddAlias("iteminfo", "ii");
@@ -193,6 +194,21 @@ namespace Melia.Channel.Util
 		private CommandResult HandleTest(ChannelConnection conn, Character character, Character target, string command, string[] args)
 		{
 			Log.Debug("test!!");
+
+			return CommandResult.Okay;
+		}
+
+		private CommandResult HandleSessionObjectAdd(ChannelConnection conn, Character character, Character target, string command, string[] args)
+		{
+			if (args.Length < 2)
+				return CommandResult.InvalidArgument;
+
+			int id;
+
+			if (!int.TryParse(args[1], out id))
+				return CommandResult.InvalidArgument;
+
+			character.AddSessionObject(id);
 
 			return CommandResult.Okay;
 		}

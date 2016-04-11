@@ -239,6 +239,90 @@ namespace Melia.Channel.Network
 		}
 
 		/// <summary>
+		/// Adds character's saved session objects
+		/// </summary>
+		/// <param name="character"></param>
+		public static void ZC_SESSION_OBJECTS(Character character)
+		{
+			// todo: replace ZC_SESSION_OBJECTS test code
+			var packet = new Packet(Op.ZC_SESSION_OBJECTS);
+
+			packet.PutShort(9); // session objects count
+			
+			//session objects:
+
+			packet.PutInt(15008); // SSN_EXPCARD_USE
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(60000); // sessionobject_shop.ies
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(96000); // sessionobject_request.ies
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(3); // sessionobject_npcDialog.ies
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(100000); // sessionobject_raid.ies
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(80001); // sessionobject_smartgen.ies
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(95000); // sessionobject_map_event_reward.ies
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(80000); // sessionobject_drop.ies
+			packet.PutInt(1439792640); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(0); // properties size
+			packet.PutShort(0); // ?
+
+			packet.PutInt(90000); // sessionobject_main.ies
+			packet.PutInt(-1996488704); // ?
+			packet.PutLong(ChannelServer.Instance.World.CreateUID());
+			packet.PutInt(0); // ?
+			packet.PutShort(6 * 1 + 2 + 11); // properties size
+			packet.PutShort(28); // ?
+			packet.PutShort(1328); // QSTARTZONETYPE(1328): StartLine1 
+			packet.PutLpString("StartLine1");
+			packet.PutShort(1828); //WARP_F_SIAULIAI_WEST(1828): 300
+			packet.PutFloat(300);
+
+
+			character.Connection.Send(packet);
+		}
+
+		/// <summary>
 		/// Sends ZC_QUICK_SLOT_LIST to connection, containing the
 		/// list of hotkeys?
 		/// </summary>
@@ -1770,6 +1854,24 @@ namespace Melia.Channel.Network
 			packet.PutShort(0); // Some sort of Size for something else. Since this is a "variable size" packet.
 
 			character.Map.Broadcast(packet, character);
+		}
+
+		/// <summary>
+		/// Sends added session object to the character.
+		/// </summary>
+		/// <param name="character"></param>
+		/// <param name="id"></param>
+		public static void ZC_SESSION_OBJ_ADD(Connection conn, int objId, long UID)
+		{
+			var packet = new Packet(Op.ZC_SESSION_OBJ_ADD);
+			packet.PutInt(objId);
+			packet.PutInt(0); // ?
+			packet.PutLong(UID);
+			packet.PutInt(0); // ?
+			packet.PutInt(5636096); // ?
+			packet.PutInt(0); // ?
+
+			conn.Send(packet);
 		}
 
 		public static void DUMMY(ChannelConnection conn)
