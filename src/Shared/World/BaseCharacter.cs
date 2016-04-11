@@ -10,13 +10,8 @@ using System.Threading.Tasks;
 
 namespace Melia.Shared.World
 {
-	public abstract class BaseCharacter
+	public abstract class BaseCharacter : IObject
 	{
-		/// <summary>
-		/// Character's id.
-		/// </summary>
-		public long Id { get; set; }
-
 		/// <summary>
 		/// Id of the character's account.
 		/// </summary>
@@ -85,22 +80,26 @@ namespace Melia.Shared.World
 		/// <summary>
 		/// Health points.
 		/// </summary>
-		public int Hp { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.HP, PropertyType.INT)]
+		public IntProperty Hp { get; set; }
 
 		/// <summary>
 		/// Maximum health points.
 		/// </summary>
-		public int MaxHp { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.MHP, PropertyType.INT)]
+		public IntProperty MaxHp { get; set; }
 
 		/// <summary>
 		/// Spell points.
 		/// </summary>
-		public int Sp { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.SP, PropertyType.INT)]
+		public IntProperty Sp { get; set; }
 
 		/// <summary>
 		/// Maximum spell points.
 		/// </summary>
-		public int MaxSp { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.MSP, PropertyType.INT)]
+		public IntProperty MaxSp { get; set; }
 
 		/// <summary>
 		/// Stamina points.
@@ -115,27 +114,32 @@ namespace Melia.Shared.World
 		/// <summary>
 		/// Gets or sets character's strength (STR).
 		/// </summary>
-		public float Str { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.STR, PropertyType.INT)]
+		public IntProperty Str { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's vitality (CON).
 		/// </summary>
-		public float Con { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.CON, PropertyType.INT)]
+		public IntProperty Con { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's intelligence (INT).
 		/// </summary>
-		public float Int { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.INT, PropertyType.INT)]
+		public IntProperty Int { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's spirit (SPR/MNA).
 		/// </summary>
-		public float Spr { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.MNA, PropertyType.INT)]
+		public IntProperty Spr { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's agility (DEX).
 		/// </summary>
-		public float Dex { get; set; }
+		[PropertyAttribute(ObjectProperty.PC.DEX, PropertyType.INT)]
+		public IntProperty Dex { get; set; }
 
 		/// <summary>
 		/// Returns stance, based on job and other factors.

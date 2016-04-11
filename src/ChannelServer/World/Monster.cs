@@ -88,7 +88,7 @@ namespace Melia.Channel.World
 		/// <summary>
 		/// Health points.
 		/// </summary>
-		public int Hp
+		public IntProperty Hp
 		{
 			get { return _hp; }
 			set { _hp = Math2.Clamp(0, this.MaxHp, value); }
