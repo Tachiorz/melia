@@ -56,6 +56,9 @@ namespace Melia.Login
 			// Data
 			this.LoadData(DataToLoad.All, true);
 
+			// Property Cache
+			this.InitPropertyCache();
+
 			// Packet handlers
 			LoginPacketHandler.Instance.RegisterMethods();
 

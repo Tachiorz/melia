@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Melia.Shared.Network
 {
-	public class Packet
+	public partial class Packet
 	{
 		private const int DefaultSize = 1024;
 
@@ -48,10 +48,17 @@ namespace Melia.Shared.Network
 		/// Creates new packet with given op.
 		/// </summary>
 		/// <param name="op"></param>
-		public Packet(int op)
+		public Packet(int op) : this()
+		{
+			this.Op = op;
+		}
+
+		/// <summary>
+		/// Creates new empty packet.
+		/// </summary>
+		public Packet()
 		{
 			_buffer = new byte[DefaultSize];
-			this.Op = op;
 		}
 
 		/// <summary>
@@ -442,6 +449,25 @@ namespace Melia.Shared.Network
 			Buffer.BlockCopy(val, 0, _buffer, _ptr, val.Length);
 			_ptr += val.Length;
 			this.Length += val.Length;
+		}
+
+		/// <summary>
+		/// Writes packet to buffer.
+		/// </summary>
+		/// <param name="p"></param>
+		public void PutBin(Packet p)
+		{
+			if (_zlibPacket != null)
+			{
+				_zlibPacket.PutBin(p);
+				return;
+			}
+
+			this.EnsureSpace(p.Length);
+
+			Buffer.BlockCopy(p._buffer, 0, _buffer, _ptr, p.Length);
+			_ptr += p.Length;
+			this.Length += p.Length;
 		}
 
 		/// <summary>

@@ -872,73 +872,20 @@ namespace Melia.Channel.Network
 		}
 
 		/// <summary>
-		/// Sends ZC_OBJECT_PROPERTY to character, containing a list of some
-		/// default properties always needed after connecting.
-		/// </summary>
-		/// <param name="character"></param>
-		public static void ZC_OBJECT_PROPERTY_Init(Character character)
-		{
-			ZC_OBJECT_PROPERTY(character,
-				ObjectProperty.PC.HP, ObjectProperty.PC.MHP,
-				ObjectProperty.PC.SP, ObjectProperty.PC.MSP,
-				ObjectProperty.PC.STR, ObjectProperty.PC.CON, ObjectProperty.PC.INT, ObjectProperty.PC.MNA, ObjectProperty.PC.DEX,
-				ObjectProperty.PC.NowWeight, ObjectProperty.PC.MaxWeight,
-				ObjectProperty.PC.StatByLevel, ObjectProperty.PC.StatByBonus, ObjectProperty.PC.UsedStat
-			);
-		}
-
-		/// <summary>
-		/// Sends ZC_OBJECT_PROPERTY to character, containing a list of the
-		/// given properties.
-		/// </summary>
-		/// <param name="character"></param>
-		/// <param name="properties"></param>
-		public static void ZC_OBJECT_PROPERTY(Character character, params short[] properties)
-		{
-			ZC_OBJECT_PROPERTY(character.Connection, character, properties);
-		}
-
-		/// <summary>
-		/// Sends ZC_OBJECT_PROPERTY to connection, containing a list of the
-		/// given properties, using values from character.
+		/// Send object properties to the character.
 		/// </summary>
 		/// <param name="conn"></param>
-		/// <param name="character"></param>
+		/// <param name="obj"></param>
 		/// <param name="properties"></param>
-		public static void ZC_OBJECT_PROPERTY(ChannelConnection conn, Character character, params short[] properties)
+		public static void ZC_OBJECT_PROPERTY<T>(Connection conn, GameObject obj, params short[] properties) where T : GameObject
 		{
-			if (properties == null || properties.Length == 0)
-				return;
+			var buffer = new Packet();
+			buffer.AddProperties<T>(obj, properties);
+			if (buffer.Length == 0) return;
 
 			var packet = new Packet(Op.ZC_OBJECT_PROPERTY);
-			packet.PutLong(character.Id);
-			foreach (var property in properties)
-			{
-				packet.PutShort(property);
-				switch (property)
-				{
-					case ObjectProperty.PC.HP: packet.PutFloat(character.Hp); break;
-					case ObjectProperty.PC.MHP: packet.PutFloat(character.MaxHp); break;
-					case ObjectProperty.PC.SP: packet.PutFloat(character.Sp); break;
-					case ObjectProperty.PC.MSP: packet.PutFloat(character.MaxSp); break;
-
-					case ObjectProperty.PC.STR: packet.PutFloat(character.Str); break;
-					case ObjectProperty.PC.CON: packet.PutFloat(character.Con); break;
-					case ObjectProperty.PC.INT: packet.PutFloat(character.Int); break;
-					case ObjectProperty.PC.MNA: packet.PutFloat(character.Spr); break;
-					case ObjectProperty.PC.DEX: packet.PutFloat(character.Dex); break;
-
-					case ObjectProperty.PC.NowWeight: packet.PutFloat(character.NowWeight); break;
-					case ObjectProperty.PC.MaxWeight: packet.PutFloat(character.MaxWeight); break;
-
-					case ObjectProperty.PC.StatByLevel: packet.PutFloat(character.StatByLevel); break;
-					case ObjectProperty.PC.StatByBonus: packet.PutFloat(character.StatByBonus); break;
-					case ObjectProperty.PC.UsedStat: packet.PutFloat(character.UsedStat); break;
-
-					default: throw new ArgumentException("Unknown property '" + property + "'.");
-				}
-			}
-
+			packet.PutLong(obj.Id);
+			packet.PutBin(buffer);
 			conn.Send(packet);
 		}
 

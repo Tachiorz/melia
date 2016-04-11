@@ -11,6 +11,7 @@ using Melia.Shared.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -67,6 +68,7 @@ namespace Melia.Channel.World
 		/// <summary>
 		/// Returns combined weight of all items the character is currently carrying.
 		/// </summary>
+		[Property(ObjectProperty.PC.NowWeight, PropertyOption.Calculated)]
 		public float NowWeight { get { return this.Inventory.GetNowWeight(); } }
 
 		/// <summary>
@@ -77,16 +79,19 @@ namespace Melia.Channel.World
 		/// <summary>
 		/// Stat points acquired by leveling?
 		/// </summary>
+		[Property(ObjectProperty.PC.StatByLevel)]
 		public float StatByLevel { get; set; }
 
 		/// <summary>
 		/// Bonus stat points?
 		/// </summary>
+		[Property(ObjectProperty.PC.StatByBonus)]
 		public float StatByBonus { get; set; }
 
 		/// <summary>
 		/// Amount of stat points spent.
 		/// </summary>
+		[Property(ObjectProperty.PC.UsedStat)]
 		public float UsedStat { get; set; }
 
 		/// <summary>
@@ -95,6 +100,7 @@ namespace Melia.Channel.World
 		/// <remarks>
 		/// Base 5000, plus 5 for each Str/Con.
 		/// </remarks>
+		[Property(ObjectProperty.PC.MaxWeight, PropertyOption.Calculated)]
 		public float MaxWeight { get { return (5000 + this.Str * 5 + this.Con * 5); } }
 
 		/// <summary>
@@ -309,7 +315,7 @@ namespace Melia.Channel.World
 
 			Send.ZC_MAX_EXP_CHANGED(this, 0);
 			Send.ZC_PC_LEVELUP(this);
-			Send.ZC_OBJECT_PROPERTY(this, ObjectProperty.PC.StatByLevel);
+			Send.ZC_OBJECT_PROPERTY<Character>(this.Connection, this);
 			Send.ZC_NORMAL_LevelUp(this);
 
 			//packet = new Packet(Op.ZC_PC_PROP_UPDATE);

@@ -10,13 +10,8 @@ using System.Threading.Tasks;
 
 namespace Melia.Shared.World
 {
-	public abstract class BaseCharacter
+	public abstract class BaseCharacter : GameObject
 	{
-		/// <summary>
-		/// Character's id.
-		/// </summary>
-		public long Id { get; set; }
-
 		/// <summary>
 		/// Id of the character's account.
 		/// </summary>
@@ -85,21 +80,25 @@ namespace Melia.Shared.World
 		/// <summary>
 		/// Health points.
 		/// </summary>
+		[Property(ObjectProperty.PC.HP)]
 		public int Hp { get; set; }
 
 		/// <summary>
 		/// Maximum health points.
 		/// </summary>
+		[Property(ObjectProperty.PC.MHP)]
 		public int MaxHp { get; set; }
 
 		/// <summary>
 		/// Spell points.
 		/// </summary>
+		[Property(ObjectProperty.PC.SP)]
 		public int Sp { get; set; }
 
 		/// <summary>
 		/// Maximum spell points.
 		/// </summary>
+		[Property(ObjectProperty.PC.MSP)]
 		public int MaxSp { get; set; }
 
 		/// <summary>
@@ -115,26 +114,31 @@ namespace Melia.Shared.World
 		/// <summary>
 		/// Gets or sets character's strength (STR).
 		/// </summary>
+		[Property(ObjectProperty.PC.STR)]
 		public float Str { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's vitality (CON).
 		/// </summary>
+		[Property(ObjectProperty.PC.CON)]
 		public float Con { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's intelligence (INT).
 		/// </summary>
+		[Property(ObjectProperty.PC.INT)]
 		public float Int { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's spirit (SPR/MNA).
 		/// </summary>
+		[Property(ObjectProperty.PC.MNA)]
 		public float Spr { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's agility (DEX).
 		/// </summary>
+		[Property(ObjectProperty.PC.DEX)]
 		public float Dex { get; set; }
 
 		/// <summary>
