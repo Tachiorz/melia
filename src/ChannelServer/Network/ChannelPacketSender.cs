@@ -867,10 +867,10 @@ namespace Melia.Channel.Network
 			character.Map.Broadcast(packet, character);
 		}
 
-		public static void ZC_OBJECT_PROPERTY(Connection conn, IObject obj)
+		public static void ZC_OBJECT_PROPERTY(Connection conn, IObject obj, params short[] properties)
 		{
 			var packetBuffer = new PacketBuffer();
-			obj.PutChangedPropererties(packetBuffer);
+			obj.PutPropererties(packetBuffer, properties);
 			var buffer = packetBuffer.GetBuffer();
 			if (buffer.Length == 0) return;
 

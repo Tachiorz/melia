@@ -7,7 +7,7 @@ namespace Melia.Channel.World
 	public interface IEntity
 	{
 		int Handle { get; }
-		IntProperty Hp { get; }
+		int Hp { get; }
 		Map Map { get; }
 		Position Position { get; }
 	}

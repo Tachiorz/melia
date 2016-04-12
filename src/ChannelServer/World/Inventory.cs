@@ -235,7 +235,7 @@ namespace Melia.Channel.World
 			var index = this.AddSilent(item);
 
 			Send.ZC_ITEM_ADD(_character, item, index, addType);
-			Send.ZC_OBJECT_PROPERTY(_character.Connection, _character);
+			Send.ZC_OBJECT_PROPERTY(_character.Connection, _character, ObjectProperty.PC.NowWeight);
 
 			return index;
 		}
@@ -335,7 +335,7 @@ namespace Melia.Channel.World
 
 			Send.ZC_ITEM_REMOVE(_character, item.WorldId, item.Amount, InventoryItemRemoveMsg.Destroyed, InventoryType.Inventory);
 			Send.ZC_ITEM_INVENTORY_INDEX_LIST(_character, item.Data.Category);
-			Send.ZC_OBJECT_PROPERTY(_character.Connection, _character);
+			Send.ZC_OBJECT_PROPERTY(_character.Connection, _character, ObjectProperty.PC.NowWeight);
 
 			return InventoryResult.Success;
 		}
@@ -473,7 +473,7 @@ namespace Melia.Channel.World
 				Send.ZC_ITEM_INVENTORY_INDEX_LIST(_character, category);
 
 			// Update weight
-			Send.ZC_OBJECT_PROPERTY(_character.Connection, _character);
+			Send.ZC_OBJECT_PROPERTY(_character.Connection, _character, ObjectProperty.PC.NowWeight);
 
 			return InventoryResult.Success;
 		}

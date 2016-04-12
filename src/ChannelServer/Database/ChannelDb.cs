@@ -147,20 +147,20 @@ namespace Melia.Channel.Database
 				cmd.Set("z", character.Position.Z);
 				cmd.Set("exp", character.Exp);
 				cmd.Set("maxExp", character.MaxExp);
-				cmd.Set("hp", (float)character.Hp);
-				cmd.Set("maxHp", (float)character.MaxHp);
-				cmd.Set("sp", (float)character.Sp);
-				cmd.Set("maxSp", (float)character.MaxSp);
-				cmd.Set("stamina", (float)character.Stamina);
-				cmd.Set("maxStamina", (float)character.MaxStamina);
-				cmd.Set("str", (float)character.Str);
-				cmd.Set("con", (float)character.Con);
-				cmd.Set("int", (float)character.Int);
-				cmd.Set("spr", (float)character.Spr);
-				cmd.Set("dex", (float)character.Dex);
-				cmd.Set("statByLevel", (float)character.StatByLevel);
-				cmd.Set("statByBonus", (float)character.StatByBonus);
-				cmd.Set("usedStat", (float)character.UsedStat);
+				cmd.Set("hp", character.Hp);
+				cmd.Set("maxHp", character.MaxHp);
+				cmd.Set("sp", character.Sp);
+				cmd.Set("maxSp", character.MaxSp);
+				cmd.Set("stamina", character.Stamina);
+				cmd.Set("maxStamina", character.MaxStamina);
+				cmd.Set("str", character.Str);
+				cmd.Set("con", character.Con);
+				cmd.Set("int", character.Int);
+				cmd.Set("spr", character.Spr);
+				cmd.Set("dex", character.Dex);
+				cmd.Set("statByLevel", character.StatByLevel);
+				cmd.Set("statByBonus", character.StatByBonus);
+				cmd.Set("usedStat", character.UsedStat);
 
 				cmd.Execute();
 			}

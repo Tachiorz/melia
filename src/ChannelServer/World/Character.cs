@@ -67,8 +67,7 @@ namespace Melia.Channel.World
 		/// Returns combined weight of all items the character is currently carrying.
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.NowWeight, PropertyType.INT)]
-		private IntProperty _nowWeight;
-		public float NowWeight { get { _nowWeight = this.Inventory.GetNowWeight(); return _nowWeight; } }
+		public float NowWeight { get { return this.Inventory.GetNowWeight(); } }
 
 		/// <summary>
 		/// Stat points.
@@ -79,19 +78,19 @@ namespace Melia.Channel.World
 		/// Stat points acquired by leveling?
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.StatByLevel, PropertyType.INT)]
-		public IntProperty StatByLevel { get; set; }
+		public float StatByLevel { get; set; }
 
 		/// <summary>
 		/// Bonus stat points?
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.StatByBonus, PropertyType.INT)]
-		public IntProperty StatByBonus { get; set; }
+		public float StatByBonus { get; set; }
 
 		/// <summary>
 		/// Amount of stat points spent.
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.UsedStat, PropertyType.INT)]
-		public IntProperty UsedStat { get; set; }
+		public float UsedStat { get; set; }
 
 		/// <summary>
 		/// Returns maximum weight the character can carry.
@@ -100,8 +99,7 @@ namespace Melia.Channel.World
 		/// Base 5000, plus 5 for each Str/Con.
 		/// </remarks>
 		[PropertyAttribute(ObjectProperty.PC.MaxWeight, PropertyType.INT)]
-		private IntProperty _maxWeight;
-		public float MaxWeight { get { _maxWeight = (5000 + this.Str * 5 + this.Con * 5); return _maxWeight; } }
+		public float MaxWeight { get { return (5000 + this.Str * 5 + this.Con * 5); } }
 
 		/// <summary>
 		/// Returns ratio between NowWeight and MaxWeight.
@@ -307,7 +305,7 @@ namespace Melia.Channel.World
 			//conn.Send(packet);
 
 			Send.ZC_PC_LEVELUP(this);
-			Send.ZC_OBJECT_PROPERTY(this.Connection, this);
+			Send.ZC_OBJECT_PROPERTY(this.Connection, this, ObjectProperty.PC.StatByLevel);
 			Send.ZC_NORMAL_LevelUp(this);
 
 			//packet = new Packet(Op.ZC_PC_PROP_UPDATE);

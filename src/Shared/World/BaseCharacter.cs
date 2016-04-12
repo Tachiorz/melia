@@ -81,25 +81,25 @@ namespace Melia.Shared.World
 		/// Health points.
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.HP, PropertyType.INT)]
-		public IntProperty Hp { get; set; }
+		public int Hp { get; set; }
 
 		/// <summary>
 		/// Maximum health points.
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.MHP, PropertyType.INT)]
-		public IntProperty MaxHp { get; set; }
+		public int MaxHp { get; set; }
 
 		/// <summary>
 		/// Spell points.
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.SP, PropertyType.INT)]
-		public IntProperty Sp { get; set; }
+		public int Sp { get; set; }
 
 		/// <summary>
 		/// Maximum spell points.
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.MSP, PropertyType.INT)]
-		public IntProperty MaxSp { get; set; }
+		public int MaxSp { get; set; }
 
 		/// <summary>
 		/// Stamina points.
@@ -115,31 +115,31 @@ namespace Melia.Shared.World
 		/// Gets or sets character's strength (STR).
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.STR, PropertyType.INT)]
-		public IntProperty Str { get; set; }
+		public float Str { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's vitality (CON).
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.CON, PropertyType.INT)]
-		public IntProperty Con { get; set; }
+		public float Con { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's intelligence (INT).
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.INT, PropertyType.INT)]
-		public IntProperty Int { get; set; }
+		public float Int { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's spirit (SPR/MNA).
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.MNA, PropertyType.INT)]
-		public IntProperty Spr { get; set; }
+		public float Spr { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's agility (DEX).
 		/// </summary>
 		[PropertyAttribute(ObjectProperty.PC.DEX, PropertyType.INT)]
-		public IntProperty Dex { get; set; }
+		public float Dex { get; set; }
 
 		/// <summary>
 		/// Returns stance, based on job and other factors.

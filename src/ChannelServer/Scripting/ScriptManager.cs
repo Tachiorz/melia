@@ -938,7 +938,9 @@ namespace Melia.Channel.Scripting
 			character.Spr = 1;
 			character.Dex = 1;
 
-			Send.ZC_OBJECT_PROPERTY(character.Connection, character);
+			Send.ZC_OBJECT_PROPERTY(character.Connection, character, 
+				ObjectProperty.PC.STR, ObjectProperty.PC.CON, ObjectProperty.PC.INT, ObjectProperty.PC.MNA, ObjectProperty.PC.DEX,
+				ObjectProperty.PC.StatByLevel, ObjectProperty.PC.StatByBonus, ObjectProperty.PC.UsedStat);
 
 			return 0;
 		}
