@@ -72,6 +72,7 @@ namespace Melia.Shared.World
 						}
 					}
 				}
+				_isPropertiesCached = true;
 			}
 
 			Func<PacketBuffer, KeyValuePair<short, PropertyCache>, bool> addProp = (b, prop) =>
