@@ -28,13 +28,6 @@ namespace Melia.Shared.World
 	{
 		public PropertyType Type;
 		public Delegate Get;
-		public ConditionalWeakTable<IObject, PropertyValueCache> PropetyValueCache;
-
-		public PropertyCache(PropertyType type)
-		{
-			this.Type = type;
-			this.PropetyValueCache = new ConditionalWeakTable<IObject, PropertyValueCache>();
-		}
 	}
 
 	public class PropertyAttribute : Attribute
@@ -57,6 +50,7 @@ namespace Melia.Shared.World
 		public long Id { get; set; }
 		private Guid _cachedType = Guid.Empty;
 		private static Dictionary<Guid, Dictionary<short, PropertyCache>> _propertyCache = new Dictionary<Guid, Dictionary<short, PropertyCache>>();
+		private Dictionary<short, PropertyValueCache> _propertyValuesCache;
 
 		public void CacheProperties<T>() where T : IObject
 		{
@@ -66,7 +60,7 @@ namespace Melia.Shared.World
 				var attr = Attribute.GetCustomAttribute(propInfo, typeof(PropertyAttribute)) as PropertyAttribute;
 				if (attr == null) continue;
 				if (!_propertyCache.ContainsKey(_cachedType)) _propertyCache[_cachedType] = new Dictionary<short, PropertyCache>();
-				_propertyCache[_cachedType][attr.Id] = new PropertyCache(attr.Type);
+				_propertyCache[_cachedType][attr.Id] = new PropertyCache {Type = attr.Type};
 				MethodInfo m = propInfo.GetMethod;
 				if (m.ReturnType == typeof(string))
 				{
@@ -92,33 +86,35 @@ namespace Melia.Shared.World
 			if (_cachedType == Guid.Empty)
 			{
 				_cachedType = typeof(T).GUID;
+				_propertyValuesCache = new Dictionary<short, PropertyValueCache>();
 				if (!_propertyCache.ContainsKey(_cachedType)) CacheProperties<T>();
 			}
 
 			Func<PacketBuffer, KeyValuePair<short, PropertyCache>, bool> addProp = (b, prop) =>
 			{
-				var propValCache = prop.Value.PropetyValueCache.GetOrCreateValue(this);
+				if (!_propertyValuesCache.ContainsKey(prop.Key)) _propertyValuesCache[prop.Key] = new PropertyValueCache();
+				var valCache = _propertyValuesCache[prop.Key];
 				switch (prop.Value.Type)
 				{
 					case PropertyType.STRING:
 						var stringVal = ((Func<T, string>) (prop.Value.Get))((T) this);
-						if (propValCache.StringValue == stringVal) break;
-						propValCache.StringValue = stringVal;
+						if (valCache.StringValue == stringVal) break;
+						valCache.StringValue = stringVal;
 						b.PutShort(prop.Key);
 						b.PutLpString(stringVal);
 						break;
 					case PropertyType.INT:
 						var intVal = ((Func<T, int>) (prop.Value.Get))((T) this);
-						if (propValCache.IntValue == intVal) break;
-						propValCache.IntValue = intVal;
+						if (valCache.IntValue == intVal) break;
+						valCache.IntValue = intVal;
 						b.PutShort(prop.Key);
 						b.PutFloat(intVal);
 						break;
 					case PropertyType.FLOAT:
 						var floatVal = ((Func<T, float>) (prop.Value.Get))((T) this);
 						// todo: i'm not sure if TOS sends fractional floats, I guess not and we don't even need CachedFloatValue
-						if ((int)propValCache.FloatValue == (int)floatVal) break;
-						propValCache.FloatValue = floatVal;
+						if ((int)valCache.FloatValue == (int)floatVal) break;
+						valCache.FloatValue = floatVal;
 						b.PutShort(prop.Key);
 						b.PutFloat(floatVal);
 						break;
