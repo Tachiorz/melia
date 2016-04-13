@@ -120,11 +120,7 @@ namespace Melia.Channel.Network
 			Send.ZC_QUICK_SLOT_LIST(conn);
 			// ZC_NORMAL...
 			Send.ZC_START_GAME(conn);
-			Send.ZC_OBJECT_PROPERTY(conn, character, ObjectProperty.PC.HP, ObjectProperty.PC.MHP,
-				ObjectProperty.PC.SP, ObjectProperty.PC.MSP,
-				ObjectProperty.PC.STR, ObjectProperty.PC.CON, ObjectProperty.PC.INT, ObjectProperty.PC.MNA, ObjectProperty.PC.DEX,
-				ObjectProperty.PC.NowWeight, ObjectProperty.PC.MaxWeight,
-				ObjectProperty.PC.StatByLevel, ObjectProperty.PC.StatByBonus, ObjectProperty.PC.UsedStat);
+			Send.ZC_OBJECT_PROPERTY<Character>(conn, character);
 			Send.ZC_LOGIN_TIME(conn, DateTime.Now);
 			Send.ZC_MYPC_ENTER(character);
 			// ZC_NORMAL...
@@ -850,7 +846,7 @@ namespace Melia.Channel.Network
 					Send.ZC_ADDON_MSG(character, "RESET_STAT_UP");
 
 					// Official doesn't update UsedStat with this packet =<
-					Send.ZC_OBJECT_PROPERTY(conn, character, ObjectProperty.PC.StatByLevel);
+					Send.ZC_OBJECT_PROPERTY<Character>(conn, character);
 
 					//Send.ZC_PC_PROP_UPDATE(character, ObjectProperty.PC.STR_STAT, 0);
 					//Send.ZC_PC_PROP_UPDATE(character, ObjectProperty.PC.UsedStat, 0);

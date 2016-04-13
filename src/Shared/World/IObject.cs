@@ -18,8 +18,12 @@ namespace Melia.Shared.World
 
 	public class PropertyCache
 	{
-		public PropertyType type;
-		public Delegate get;
+		public PropertyType Type;
+		public Delegate Get;
+
+		public float CachedFloatValue = 0.0f;
+		public int CachedIntValue = 0;
+		public string CachedStringValue= "";
 	}
 
 	public class PropertyAttribute : Attribute
@@ -40,61 +44,84 @@ namespace Melia.Shared.World
 		/// Object UID
 		/// </summary>
 		public long Id { get; set; }
-		private bool _isPropertiesCached = false;
-		private Dictionary<short, PropertyCache> _propertyCache;
+		private Type _cachedType = null;
+		private static Dictionary<Type, Dictionary<short, PropertyCache>> _propertyCache = new Dictionary<Type, Dictionary<short, PropertyCache>>();
 
-		public void PutPropererties(PacketBuffer buf, params short[] properties)
+		public void CacheProperties<T>() where T : IObject
 		{
-			if (!_isPropertiesCached)
+			if (_cachedType == null) _cachedType = typeof(T);
+			foreach (var propInfo in this.GetType().GetProperties())
 			{
-				_propertyCache = new Dictionary<short, PropertyCache>();
-				var T = this.GetType();
-				foreach (var propInfo in T.GetProperties())
+				var attr = Attribute.GetCustomAttribute(propInfo, typeof(PropertyAttribute)) as PropertyAttribute;
+				if (attr == null) continue;
+				if (!_propertyCache.ContainsKey(_cachedType)) _propertyCache[_cachedType] = new Dictionary<short, PropertyCache>();
+				_propertyCache[_cachedType][attr.Id] = new PropertyCache() { Type = attr.Type };
+				MethodInfo m = propInfo.GetMethod;
+				if (attr.Type == PropertyType.STRING)
+					_propertyCache[_cachedType][attr.Id].Get = Delegate.CreateDelegate(typeof(Func<T, string>), null, m);
+				else if (attr.Type == PropertyType.INT || attr.Type == PropertyType.FLOAT)
 				{
-					var attr = Attribute.GetCustomAttribute(propInfo, typeof (PropertyAttribute)) as PropertyAttribute;
-					if (attr == null) continue;
-					_propertyCache[attr.Id] = new PropertyCache() { type = attr.Type };
-					MethodInfo m = propInfo.GetMethod;
-					if (attr.Type == PropertyType.STRING)
-						_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<string>), this, m);
-					else if (attr.Type == PropertyType.INT || attr.Type == PropertyType.FLOAT)
+					if (m.ReturnType == typeof(int))
 					{
-						if (propInfo.GetMethod.ReturnType == typeof (int))
-						{
-							_propertyCache[attr.Id].type = PropertyType.INT;
-							_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<int>), this, m);
-						}
-						else if (propInfo.GetMethod.ReturnType == typeof (float))
-						{
-							_propertyCache[attr.Id].type = PropertyType.FLOAT;
-							_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<float>), this, m);
-						}
+						_propertyCache[_cachedType][attr.Id].Type = PropertyType.INT;
+						_propertyCache[_cachedType][attr.Id].Get = Delegate.CreateDelegate(typeof(Func<T, int>), null, m);
+					}
+					else if (m.ReturnType == typeof(float))
+					{
+						_propertyCache[_cachedType][attr.Id].Type = PropertyType.FLOAT;
+						_propertyCache[_cachedType][attr.Id].Get = Delegate.CreateDelegate(typeof(Func<T, float>), null, m);
 					}
 				}
-				_isPropertiesCached = true;
+			}
+		}
+
+		public void PutPropererties<T>(PacketBuffer buf, params short[] properties) where T : IObject
+		{
+			if (_cachedType == null)
+			{
+				_cachedType = typeof (T);
+				if (!_propertyCache.ContainsKey(_cachedType)) CacheProperties<T>();
 			}
 
 			Func<PacketBuffer, KeyValuePair<short, PropertyCache>, bool> addProp = (b, prop) =>
 			{
-				b.PutShort(prop.Key);
-				switch (prop.Value.type)
+				switch (prop.Value.Type)
 				{
-					case PropertyType.STRING: b.PutLpString(((Func<string>)(prop.Value.get))()); break;
-					case PropertyType.INT: b.PutFloat(((Func<int>)(prop.Value.get))()); break;
-					case PropertyType.FLOAT: b.PutFloat(((Func<float>)(prop.Value.get))()); break;
+					case PropertyType.STRING:
+						var stringVal = ((Func<T, string>) (prop.Value.Get))((T) this);
+						if (prop.Value.CachedStringValue == stringVal) break;
+						prop.Value.CachedStringValue = stringVal;
+						b.PutShort(prop.Key);
+						b.PutLpString(stringVal);
+						break;
+					case PropertyType.INT:
+						var intVal = ((Func<T, int>) (prop.Value.Get))((T) this);
+						if (prop.Value.CachedIntValue == intVal) break;
+						prop.Value.CachedIntValue = intVal;
+						b.PutShort(prop.Key);
+						b.PutFloat(intVal);
+						break;
+					case PropertyType.FLOAT:
+						var floatVal = ((Func<T, float>) (prop.Value.Get))((T) this);
+						// todo: i'm not sure if TOS sends fractional floats, I guess not and we don't even need CachedFloatValue
+						if ((int)prop.Value.CachedFloatValue == (int)floatVal) break;
+						prop.Value.CachedFloatValue = floatVal;
+						b.PutShort(prop.Key);
+						b.PutFloat(floatVal);
+						break;
 				}
 				return true;
 			};
 
 			if (properties == null || properties.Length == 0)
 			{
-				foreach (var p in _propertyCache)
+				foreach (var p in _propertyCache[_cachedType])
 					addProp(buf, p);
 			}
 			else
 			{
 				foreach (var p in properties)
-					addProp(buf, new KeyValuePair<short, PropertyCache>(p, _propertyCache[p]));
+					addProp(buf, new KeyValuePair<short, PropertyCache>(p, _propertyCache[_cachedType][p]));
 			}
 		}
 	}

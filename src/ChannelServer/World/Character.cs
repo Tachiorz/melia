@@ -10,6 +10,7 @@ using Melia.Shared.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -305,7 +306,7 @@ namespace Melia.Channel.World
 			//conn.Send(packet);
 
 			Send.ZC_PC_LEVELUP(this);
-			Send.ZC_OBJECT_PROPERTY(this.Connection, this, ObjectProperty.PC.StatByLevel);
+			Send.ZC_OBJECT_PROPERTY<Character>(this.Connection, this);
 			Send.ZC_NORMAL_LevelUp(this);
 
 			//packet = new Packet(Op.ZC_PC_PROP_UPDATE);
