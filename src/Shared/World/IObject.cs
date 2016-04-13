@@ -34,8 +34,6 @@ namespace Melia.Shared.World
 		}
 	}
 
-
-
 	public class IObject
 	{
 		/// <summary>
@@ -56,19 +54,20 @@ namespace Melia.Shared.World
 					var attr = Attribute.GetCustomAttribute(propInfo, typeof (PropertyAttribute)) as PropertyAttribute;
 					if (attr == null) continue;
 					_propertyCache[attr.Id] = new PropertyCache() { type = attr.Type };
+					MethodInfo m = propInfo.GetMethod;
 					if (attr.Type == PropertyType.STRING)
-						_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<string>), this, propInfo.GetMethod);
+						_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<string>), this, m);
 					else if (attr.Type == PropertyType.INT || attr.Type == PropertyType.FLOAT)
 					{
 						if (propInfo.GetMethod.ReturnType == typeof (int))
 						{
 							_propertyCache[attr.Id].type = PropertyType.INT;
-							_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<int>), this, propInfo.GetMethod);
+							_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<int>), this, m);
 						}
 						else if (propInfo.GetMethod.ReturnType == typeof (float))
 						{
 							_propertyCache[attr.Id].type = PropertyType.FLOAT;
-							_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof (Func<float>), this, propInfo.GetMethod);
+							_propertyCache[attr.Id].get = Delegate.CreateDelegate(typeof(Func<float>), this, m);
 						}
 					}
 				}
@@ -77,20 +76,12 @@ namespace Melia.Shared.World
 
 			Func<PacketBuffer, KeyValuePair<short, PropertyCache>, bool> addProp = (b, prop) =>
 			{
-				if (prop.Value.type == PropertyType.STRING)
+				b.PutShort(prop.Key);
+				switch (prop.Value.type)
 				{
-					b.PutShort(prop.Key);
-					b.PutLpString(((Func<string>)(prop.Value.get))());
-				}
-				else if (prop.Value.type == PropertyType.INT)
-				{
-					b.PutShort(prop.Key);
-					b.PutFloat(((Func<int>)(prop.Value.get))());
-				}
-				else if (prop.Value.type == PropertyType.FLOAT)
-				{
-					b.PutShort(prop.Key);
-					b.PutFloat(((Func<float>)(prop.Value.get))());
+					case PropertyType.STRING: b.PutLpString(((Func<string>)(prop.Value.get))()); break;
+					case PropertyType.INT: b.PutFloat(((Func<int>)(prop.Value.get))()); break;
+					case PropertyType.FLOAT: b.PutFloat(((Func<float>)(prop.Value.get))()); break;
 				}
 				return true;
 			};
