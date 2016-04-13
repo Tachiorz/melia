@@ -80,25 +80,25 @@ namespace Melia.Shared.World
 		/// <summary>
 		/// Health points.
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.HP, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.HP)]
 		public int Hp { get; set; }
 
 		/// <summary>
 		/// Maximum health points.
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.MHP, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.MHP)]
 		public int MaxHp { get; set; }
 
 		/// <summary>
 		/// Spell points.
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.SP, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.SP)]
 		public int Sp { get; set; }
 
 		/// <summary>
 		/// Maximum spell points.
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.MSP, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.MSP)]
 		public int MaxSp { get; set; }
 
 		/// <summary>
@@ -114,31 +114,31 @@ namespace Melia.Shared.World
 		/// <summary>
 		/// Gets or sets character's strength (STR).
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.STR, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.STR)]
 		public float Str { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's vitality (CON).
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.CON, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.CON)]
 		public float Con { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's intelligence (INT).
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.INT, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.INT)]
 		public float Int { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's spirit (SPR/MNA).
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.MNA, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.MNA)]
 		public float Spr { get; set; }
 
 		/// <summary>
 		/// Gets or sets character's agility (DEX).
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.DEX, PropertyType.INT)]
+		[PropertyAttribute(ObjectProperty.PC.DEX)]
 		public float Dex { get; set; }
 
 		/// <summary>
