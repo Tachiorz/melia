@@ -67,7 +67,7 @@ namespace Melia.Channel.World
 		/// <summary>
 		/// Returns combined weight of all items the character is currently carrying.
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.NowWeight)]
+		[Property(ObjectProperty.PC.NowWeight, PropertyOption.Calculated)]
 		public float NowWeight { get { return this.Inventory.GetNowWeight(); } }
 
 		/// <summary>
@@ -78,19 +78,19 @@ namespace Melia.Channel.World
 		/// <summary>
 		/// Stat points acquired by leveling?
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.StatByLevel)]
+		[Property(ObjectProperty.PC.StatByLevel)]
 		public float StatByLevel { get; set; }
 
 		/// <summary>
 		/// Bonus stat points?
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.StatByBonus)]
+		[Property(ObjectProperty.PC.StatByBonus)]
 		public float StatByBonus { get; set; }
 
 		/// <summary>
 		/// Amount of stat points spent.
 		/// </summary>
-		[PropertyAttribute(ObjectProperty.PC.UsedStat)]
+		[Property(ObjectProperty.PC.UsedStat)]
 		public float UsedStat { get; set; }
 
 		/// <summary>
@@ -99,7 +99,7 @@ namespace Melia.Channel.World
 		/// <remarks>
 		/// Base 5000, plus 5 for each Str/Con.
 		/// </remarks>
-		[PropertyAttribute(ObjectProperty.PC.MaxWeight)]
+		[Property(ObjectProperty.PC.MaxWeight, PropertyOption.Calculated)]
 		public float MaxWeight { get { return (5000 + this.Str * 5 + this.Con * 5); } }
 
 		/// <summary>

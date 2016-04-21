@@ -1,21 +1,22 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using Melia.Shared.Const;
 using Melia.Shared.Network;
-using Melia.Shared.Util;
 
 namespace Melia.Shared.World
 {
 	public enum PropertyType
 	{
-		STRING,
-		INT,
-		FLOAT
+		String,
+		Int,
+		Float
 	}
+
+  	[Flags]
+    public enum PropertyOption
+    {
+    	Calculated = 1, // Property calculated at runtime using getter, no need to save to DB
+    }
 
 	public class PropertyValueCache
 	{
@@ -34,11 +35,17 @@ namespace Melia.Shared.World
 	{
 		public short Id { get; private set; }
 		public PropertyType Type { get; private set; }
+	  	public PropertyOption Options { get; private set; }
 
-		public PropertyAttribute(short Id)
+		public PropertyAttribute(short id)
+		{
+			this.Id = id;
+		}
+
+		public PropertyAttribute(short id, PropertyOption options)
 		{
 			this.Id = Id;
-			this.Type = Type;
+			this.Options = options;
 		}
 	}
 
@@ -64,17 +71,17 @@ namespace Melia.Shared.World
 				MethodInfo m = propInfo.GetMethod;
 				if (m.ReturnType == typeof(string))
 				{
-					_propertyCache[_cachedType][attr.Id].Type = PropertyType.STRING;
+					_propertyCache[_cachedType][attr.Id].Type = PropertyType.String;
 					_propertyCache[_cachedType][attr.Id].Get = Delegate.CreateDelegate(typeof (Func<T, string>), null, m);
 				}
 				else if (m.ReturnType == typeof(int))
 				{
-					_propertyCache[_cachedType][attr.Id].Type = PropertyType.INT;
+					_propertyCache[_cachedType][attr.Id].Type = PropertyType.Int;
 					_propertyCache[_cachedType][attr.Id].Get = Delegate.CreateDelegate(typeof(Func<T, int>), null, m);
 				}
 				else if (m.ReturnType == typeof(float))
 				{
-					_propertyCache[_cachedType][attr.Id].Type = PropertyType.FLOAT;
+					_propertyCache[_cachedType][attr.Id].Type = PropertyType.Float;
 					_propertyCache[_cachedType][attr.Id].Get = Delegate.CreateDelegate(typeof (Func<T, float>), null, m);
 				}
 				else throw new InvalidOperationException();
@@ -96,24 +103,23 @@ namespace Melia.Shared.World
 				var valCache = _propertyValuesCache[prop.Key];
 				switch (prop.Value.Type)
 				{
-					case PropertyType.STRING:
+					case PropertyType.String:
 						var stringVal = ((Func<T, string>) (prop.Value.Get))((T) this);
 						if (valCache.StringValue == stringVal) break;
 						valCache.StringValue = stringVal;
 						b.PutShort(prop.Key);
 						b.PutLpString(stringVal);
 						break;
-					case PropertyType.INT:
+					case PropertyType.Int:
 						var intVal = ((Func<T, int>) (prop.Value.Get))((T) this);
 						if (valCache.IntValue == intVal) break;
 						valCache.IntValue = intVal;
 						b.PutShort(prop.Key);
 						b.PutFloat(intVal);
 						break;
-					case PropertyType.FLOAT:
+					case PropertyType.Float:
 						var floatVal = ((Func<T, float>) (prop.Value.Get))((T) this);
-						// todo: i'm not sure if TOS sends fractional floats, I guess not and we don't even need CachedFloatValue
-						if ((int)valCache.FloatValue == (int)floatVal) break;
+						if (valCache.FloatValue == floatVal) break;
 						valCache.FloatValue = floatVal;
 						b.PutShort(prop.Key);
 						b.PutFloat(floatVal);
