@@ -42,7 +42,7 @@ namespace Melia.Shared.World
 		}
 	}
 
-	public class IObject
+	public class GameObject
 	{
 		/// <summary>
 		/// Object UID
@@ -52,7 +52,7 @@ namespace Melia.Shared.World
 		private static Dictionary<Guid, Dictionary<short, PropertyCache>> _propertyCache = new Dictionary<Guid, Dictionary<short, PropertyCache>>();
 		private Dictionary<short, PropertyValueCache> _propertyValuesCache;
 
-		public void CacheProperties<T>() where T : IObject
+		public void CacheProperties<T>() where T : GameObject
 		{
 			if (_cachedType == Guid.Empty) _cachedType = typeof(T).GUID;
 			foreach (var propInfo in this.GetType().GetProperties())
@@ -81,7 +81,7 @@ namespace Melia.Shared.World
 			}
 		}
 
-		public void PutPropererties<T>(PacketBuffer buf, params short[] properties) where T : IObject
+		public void PutPropererties<T>(PacketBuffer buf, params short[] properties) where T : GameObject
 		{
 			if (_cachedType == Guid.Empty)
 			{

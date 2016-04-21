@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Melia.Shared.World
 {
-	public abstract class BaseCharacter : IObject
+	public abstract class BaseCharacter : GameObject
 	{
 		/// <summary>
 		/// Id of the character's account.

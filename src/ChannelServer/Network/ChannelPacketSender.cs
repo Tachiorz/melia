@@ -867,7 +867,7 @@ namespace Melia.Channel.Network
 			character.Map.Broadcast(packet, character);
 		}
 
-		public static void ZC_OBJECT_PROPERTY<T>(Connection conn, IObject obj, params short[] properties) where T : IObject
+		public static void ZC_OBJECT_PROPERTY<T>(Connection conn, GameObject obj, params short[] properties) where T : GameObject
 		{
 			var packetBuffer = new PacketBuffer();
 			obj.PutPropererties<T>(packetBuffer, properties);
