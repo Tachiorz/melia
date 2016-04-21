@@ -867,11 +867,16 @@ namespace Melia.Channel.Network
 			character.Map.Broadcast(packet, character);
 		}
 
+		/// <summary>
+		/// Send object properties to the character.
+		/// </summary>
+		/// <param name="conn"></param>
+		/// <param name="obj"></param>
+		/// <param name="properties"></param>
 		public static void ZC_OBJECT_PROPERTY<T>(Connection conn, GameObject obj, params short[] properties) where T : GameObject
 		{
-			var packetBuffer = new PacketBuffer();
-			obj.PutPropererties<T>(packetBuffer, properties);
-			var buffer = packetBuffer.GetBuffer();
+			var buffer = new Packet();
+			buffer.AddProperties<T>(obj, properties);
 			if (buffer.Length == 0) return;
 
 			var packet = new Packet(Op.ZC_OBJECT_PROPERTY);

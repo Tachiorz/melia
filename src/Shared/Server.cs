@@ -9,8 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Melia.Shared.World;
 
 namespace Melia.Shared
 {
@@ -49,6 +51,22 @@ namespace Melia.Shared
 			_running = true;
 
 			this.NavigateToRoot();
+		}
+
+		/// <summary>
+		/// Initializes property cache for GameObject's.
+		/// </summary>
+		protected void InitPropertyCache()
+		{
+			Log.Info("Initializing property cache...");
+			MethodInfo method = typeof(PropertyCache).GetMethod("CacheProperties");
+			foreach (var t in this.GetType().Assembly.GetTypes())
+				if (t.IsSubclassOf(typeof(GameObject)))
+				{
+					var obj = Activator.CreateInstance(t) as GameObject;
+					MethodInfo genericMethod = method.MakeGenericMethod(t);
+					genericMethod.Invoke(obj.PropertyCache, null);
+				}
 		}
 
 		/// <summary>

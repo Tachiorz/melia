@@ -83,6 +83,9 @@ namespace Melia.Channel
 			// Data
 			this.LoadData(DataToLoad.All, true);
 
+			// Property Cache
+			this.InitPropertyCache();
+
 			// GM Commands
 			this.GmCommands = new GmCommands();
 

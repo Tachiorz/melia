@@ -79,6 +79,7 @@
     <Compile Include="Data\Exceptions.cs" />
     <Compile Include="Data\Extensions.cs" />
     <Compile Include="Network\Helpers\CommanderHelper.cs" />
+    <Compile Include="Network\Helpers\PropertyHelper.cs" />
     <Compile Include="Util\Configuration\Files\Commands.cs" />
     <Compile Include="Util\Configuration\Files\World.cs" />
     <Compile Include="Util\Configuration\Files\Web.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="World\GameObject.cs" />
     <Compile Include="World\Location.cs" />
     <Compile Include="World\Position.cs" />
+    <Compile Include="World\PropertyCache.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

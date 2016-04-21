@@ -12,29 +12,64 @@ using System.Threading.Tasks;
 
 namespace Melia.Shared.Network
 {
-	public class PacketBuffer
+	public partial class Packet
 	{
-		protected int _ptr;
-		protected byte[] _buffer;
-		protected const int DefaultSize = 1024;
+		private const int DefaultSize = 1024;
 
-		private PacketBuffer _zlibPacket;
+		private byte[] _buffer;
+		private int _ptr;
+		private Packet _zlibPacket;
 
 		/// <summary>
 		/// Length of the packet.
 		/// </summary>
 		public int Length { get; protected set; }
 
-		public PacketBuffer()
+		/// <summary>
+		/// Packet's op.
+		/// </summary>
+		public int Op { get; protected set; }
+
+		/// <summary>
+		/// Creates packet from buffer coming from client.
+		/// </summary>
+		/// <param name="buffer"></param>
+		public Packet(byte[] buffer)
+		{
+			_buffer = buffer;
+
+			this.Length = buffer.Length;
+			this.Op = this.GetShort();
+			var index = this.GetInt();
+			var checksum = this.GetInt();
+		}
+
+		/// <summary>
+		/// Creates new packet with given op.
+		/// </summary>
+		/// <param name="op"></param>
+		public Packet(int op) : this()
+		{
+			this.Op = op;
+		}
+
+		/// <summary>
+		/// Creates new empty packet.
+		/// </summary>
+		public Packet()
 		{
 			_buffer = new byte[DefaultSize];
 		}
 
-		public byte[] GetBuffer()
+		/// <summary>
+		/// Throws if not enough bytes are left to read a value with the given length.
+		/// </summary>
+		/// <param name="needed"></param>
+		/// <returns></returns>
+		private void AssertGotEnough(int needed)
 		{
-			var buf = new byte[this.Length];
-			Buffer.BlockCopy(_buffer, 0, buf, 0, this.Length);
-			return buf;
+			if (_ptr + needed > this.Length)
+				throw new InvalidOperationException("Not enough bytes left to read a '" + needed + "' byte value.");
 		}
 
 		/// <summary>
@@ -42,10 +77,169 @@ namespace Melia.Shared.Network
 		/// amount of bytes.
 		/// </summary>
 		/// <param name="needed"></param>
-		protected void EnsureSpace(int needed)
+		private void EnsureSpace(int needed)
 		{
 			if (_ptr + needed > this.Length)
 				Array.Resize(ref _buffer, _buffer.Length + DefaultSize);
+		}
+
+		/// <summary>
+		/// Reads byte from buffer.
+		/// </summary>
+		/// <returns></returns>
+		public byte GetByte()
+		{
+			this.AssertGotEnough(1);
+
+			var val = _buffer[_ptr];
+			_ptr += sizeof(byte);
+
+			return val;
+		}
+
+		/// <summary>
+		/// Reads short from buffer.
+		/// </summary>
+		/// <returns></returns>
+		public short GetShort()
+		{
+			this.AssertGotEnough(2);
+
+			var val = BitConverter.ToInt16(_buffer, _ptr);
+			_ptr += sizeof(short);
+
+			return val;
+		}
+
+		/// <summary>
+		/// Reads int from buffer.
+		/// </summary>
+		/// <returns></returns>
+		public int GetInt()
+		{
+			this.AssertGotEnough(4);
+
+			var val = BitConverter.ToInt32(_buffer, _ptr);
+			_ptr += sizeof(int);
+
+			return val;
+		}
+
+		/// <summary>
+		/// Reads long from buffer.
+		/// </summary>
+		/// <returns></returns>
+		public long GetLong()
+		{
+			this.AssertGotEnough(8);
+
+			var val = BitConverter.ToInt64(_buffer, _ptr);
+			_ptr += sizeof(long);
+
+			return val;
+		}
+
+		/// <summary>
+		/// Reads float from buffer.
+		/// </summary>
+		/// <returns></returns>
+		public float GetFloat()
+		{
+			this.AssertGotEnough(4);
+
+			var val = BitConverter.ToSingle(_buffer, _ptr);
+			_ptr += sizeof(float);
+
+			return val;
+		}
+
+		/// <summary>
+		/// Reads given amount of bytes from buffer and returns them as UTF8 string.
+		/// </summary>
+		/// <param name="length"></param>
+		/// <returns></returns>
+		public string GetString(int length)
+		{
+			this.AssertGotEnough(length);
+
+			var val = Encoding.UTF8.GetString(_buffer, _ptr, length);
+
+			// Relatively fast way to get rid of null bytes.
+			var nullIndex = val.IndexOf((char)0);
+			if (nullIndex != -1)
+				val = val.Substring(0, nullIndex);
+
+			_ptr += length;
+
+			return val;
+		}
+
+		/// <summary>
+		/// Reads null-terminated string from buffer and returns it as UTF8.
+		/// </summary>
+		/// <param name="length"></param>
+		/// <returns></returns>
+		public string GetString()
+		{
+			for (int i = _ptr; i < _buffer.Length; ++i)
+			{
+				if (_buffer[i] == 0)
+				{
+					var val = Encoding.UTF8.GetString(_buffer, _ptr, i - _ptr);
+					_ptr += val.Length + 1;
+					return val;
+				}
+			}
+
+			throw new Exception("String not null-terminated.");
+		}
+
+		/// <summary>
+		/// Reads struct from buffer.
+		/// </summary>
+		/// <typeparam name="TStruct"></typeparam>
+		/// <returns></returns>
+		public TStruct GetStruct<TStruct>() where TStruct : new()
+		{
+			var type = typeof(TStruct);
+			if (!type.IsValueType || type.IsPrimitive)
+				throw new Exception("GetObj can only marshal to structs.");
+
+			var size = Marshal.SizeOf(typeof(TStruct));
+			var buffer = this.GetBin(size);
+
+			IntPtr intPtr = Marshal.AllocHGlobal(buffer.Length);
+			Marshal.Copy(buffer, 0, intPtr, buffer.Length);
+			var val = Marshal.PtrToStructure(intPtr, typeof(TStruct));
+			Marshal.FreeHGlobal(intPtr);
+
+			return (TStruct)val;
+		}
+
+		/// <summary>
+		/// Reads given amount of bytes from buffer.
+		/// </summary>
+		/// <param name="length"></param>
+		/// <returns></returns>
+		public byte[] GetBin(int length)
+		{
+			this.AssertGotEnough(length);
+
+			var val = new byte[length];
+			Buffer.BlockCopy(_buffer, _ptr, val, 0, length);
+			_ptr += length;
+
+			return val;
+		}
+
+		/// <summary>
+		/// Reads given amount of bytes from buffer and returns them as hex string.
+		/// </summary>
+		/// <param name="length"></param>
+		/// <returns></returns>
+		public string GetBinAsHex(int length)
+		{
+			return BitConverter.ToString(this.GetBin(length)).ToString().Replace("-", "").ToUpper();
 		}
 
 		/// <summary>
@@ -258,6 +452,25 @@ namespace Melia.Shared.Network
 		}
 
 		/// <summary>
+		/// Writes packet to buffer.
+		/// </summary>
+		/// <param name="p"></param>
+		public void PutBin(Packet p)
+		{
+			if (_zlibPacket != null)
+			{
+				_zlibPacket.PutBin(p);
+				return;
+			}
+
+			this.EnsureSpace(p.Length);
+
+			Buffer.BlockCopy(p._buffer, 0, _buffer, _ptr, p.Length);
+			_ptr += p.Length;
+			this.Length += p.Length;
+		}
+
+		/// <summary>
 		/// Writes bytes parsed from given hex string to buffer.
 		/// </summary>
 		/// <param name="hex"></param>
@@ -346,7 +559,7 @@ namespace Melia.Shared.Network
 			if (_zlibPacket != null)
 				throw new InvalidOperationException("End previous Zlib before starting the next one.");
 
-			_zlibPacket = new PacketBuffer();
+			_zlibPacket = new Packet(this.Op);
 		}
 
 		/// <summary>
@@ -380,207 +593,6 @@ namespace Melia.Shared.Network
 				this.PutShort(compressedVal.Length);
 				this.PutBin(compressedVal);
 			}
-		}
-	}
-
-	public class Packet : PacketBuffer
-	{
-		/// <summary>
-		/// Packet's op.
-		/// </summary>
-		public int Op { get; protected set; }
-
-		/// <summary>
-		/// Creates packet from buffer coming from client.
-		/// </summary>
-		/// <param name="buffer"></param>
-		public Packet(byte[] buffer)
-		{
-			_buffer = buffer;
-
-			this.Length = buffer.Length;
-			this.Op = this.GetShort();
-			var index = this.GetInt();
-			var checksum = this.GetInt();
-		}
-
-		/// <summary>
-		/// Creates new packet with given op.
-		/// </summary>
-		/// <param name="op"></param>
-		public Packet(int op) : base()
-		{
-			this.Op = op;
-		}
-
-		/// <summary>
-		/// Throws if not enough bytes are left to read a value with the given length.
-		/// </summary>
-		/// <param name="needed"></param>
-		/// <returns></returns>
-		private void AssertGotEnough(int needed)
-		{
-			if (_ptr + needed > this.Length)
-				throw new InvalidOperationException("Not enough bytes left to read a '" + needed + "' byte value.");
-		}
-
-		/// <summary>
-		/// Reads byte from buffer.
-		/// </summary>
-		/// <returns></returns>
-		public byte GetByte()
-		{
-			this.AssertGotEnough(1);
-
-			var val = _buffer[_ptr];
-			_ptr += sizeof(byte);
-
-			return val;
-		}
-
-		/// <summary>
-		/// Reads short from buffer.
-		/// </summary>
-		/// <returns></returns>
-		public short GetShort()
-		{
-			this.AssertGotEnough(2);
-
-			var val = BitConverter.ToInt16(_buffer, _ptr);
-			_ptr += sizeof(short);
-
-			return val;
-		}
-
-		/// <summary>
-		/// Reads int from buffer.
-		/// </summary>
-		/// <returns></returns>
-		public int GetInt()
-		{
-			this.AssertGotEnough(4);
-
-			var val = BitConverter.ToInt32(_buffer, _ptr);
-			_ptr += sizeof(int);
-
-			return val;
-		}
-
-		/// <summary>
-		/// Reads long from buffer.
-		/// </summary>
-		/// <returns></returns>
-		public long GetLong()
-		{
-			this.AssertGotEnough(8);
-
-			var val = BitConverter.ToInt64(_buffer, _ptr);
-			_ptr += sizeof(long);
-
-			return val;
-		}
-
-		/// <summary>
-		/// Reads float from buffer.
-		/// </summary>
-		/// <returns></returns>
-		public float GetFloat()
-		{
-			this.AssertGotEnough(4);
-
-			var val = BitConverter.ToSingle(_buffer, _ptr);
-			_ptr += sizeof(float);
-
-			return val;
-		}
-
-		/// <summary>
-		/// Reads given amount of bytes from buffer and returns them as UTF8 string.
-		/// </summary>
-		/// <param name="length"></param>
-		/// <returns></returns>
-		public string GetString(int length)
-		{
-			this.AssertGotEnough(length);
-
-			var val = Encoding.UTF8.GetString(_buffer, _ptr, length);
-
-			// Relatively fast way to get rid of null bytes.
-			var nullIndex = val.IndexOf((char)0);
-			if (nullIndex != -1)
-				val = val.Substring(0, nullIndex);
-
-			_ptr += length;
-
-			return val;
-		}
-
-		/// <summary>
-		/// Reads null-terminated string from buffer and returns it as UTF8.
-		/// </summary>
-		/// <param name="length"></param>
-		/// <returns></returns>
-		public string GetString()
-		{
-			for (int i = _ptr; i < _buffer.Length; ++i)
-			{
-				if (_buffer[i] == 0)
-				{
-					var val = Encoding.UTF8.GetString(_buffer, _ptr, i - _ptr);
-					_ptr += val.Length + 1;
-					return val;
-				}
-			}
-
-			throw new Exception("String not null-terminated.");
-		}
-
-		/// <summary>
-		/// Reads struct from buffer.
-		/// </summary>
-		/// <typeparam name="TStruct"></typeparam>
-		/// <returns></returns>
-		public TStruct GetStruct<TStruct>() where TStruct : new()
-		{
-			var type = typeof(TStruct);
-			if (!type.IsValueType || type.IsPrimitive)
-				throw new Exception("GetObj can only marshal to structs.");
-
-			var size = Marshal.SizeOf(typeof(TStruct));
-			var buffer = this.GetBin(size);
-
-			IntPtr intPtr = Marshal.AllocHGlobal(buffer.Length);
-			Marshal.Copy(buffer, 0, intPtr, buffer.Length);
-			var val = Marshal.PtrToStructure(intPtr, typeof(TStruct));
-			Marshal.FreeHGlobal(intPtr);
-
-			return (TStruct)val;
-		}
-
-		/// <summary>
-		/// Reads given amount of bytes from buffer.
-		/// </summary>
-		/// <param name="length"></param>
-		/// <returns></returns>
-		public byte[] GetBin(int length)
-		{
-			this.AssertGotEnough(length);
-
-			var val = new byte[length];
-			Buffer.BlockCopy(_buffer, _ptr, val, 0, length);
-			_ptr += length;
-
-			return val;
-		}
-
-		/// <summary>
-		/// Reads given amount of bytes from buffer and returns them as hex string.
-		/// </summary>
-		/// <param name="length"></param>
-		/// <returns></returns>
-		public string GetBinAsHex(int length)
-		{
-			return BitConverter.ToString(this.GetBin(length)).ToString().Replace("-", "").ToUpper();
 		}
 
 		/// <summary>
